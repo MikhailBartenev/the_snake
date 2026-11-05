@@ -1,6 +1,6 @@
 """Игра «Змейка»."""
 
-from random import choice, randint
+from random import choice
 
 import pygame as pg
 
@@ -9,7 +9,7 @@ GRID_SIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
 
-# Константа для центра экрана (исправлено)
+# Константа для центра экрана
 CENTER_X = (GRID_WIDTH // 2) * GRID_SIZE
 CENTER_Y = (GRID_HEIGHT // 2) * GRID_SIZE
 
@@ -32,7 +32,7 @@ KEY_DIRECTIONS = {
     pg.K_RIGHT: RIGHT,
 }
 
-# Множество всех возможных ячеек на поле (для быстрого поиска свободных)
+# Множество всех возможных ячеек на поле
 ALL_CELLS = set(
     (x * GRID_SIZE, y * GRID_SIZE)
     for x in range(GRID_WIDTH)
@@ -53,7 +53,7 @@ class GameObject:
         self.body_color = body_color
 
     def draw_cell(self, position, color=None, border_color=BORDER_COLOR):
-        """Закрасить ячейку и обвести границей (метод перенесен сюда)."""
+        """Закрасить ячейку и обвести границей."""
         if color is None:
             color = self.body_color
         rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
@@ -62,8 +62,10 @@ class GameObject:
             pg.draw.rect(screen, border_color, rect, 1)
 
     def draw(self):
-        """Отрисовать объект (должен быть переопределен)."""
-        raise NotImplementedError('Метод draw должен быть реализован в дочернем классе')
+        """Отрисовать объект."""
+        raise NotImplementedError(
+            'Метод draw должен быть реализован в дочернем классе'
+        )
 
 
 class Apple(GameObject):
@@ -98,7 +100,7 @@ class Snake(GameObject):
         return self.positions[0]
 
     def update_direction(self, new_direction):
-        """Применить новое направление (исправлено: параметр вместо атрибута)."""
+        """Применить новое направление."""
         if new_direction:
             dir_x, dir_y = self.direction
             if new_direction != (-dir_x, -dir_y):
@@ -113,20 +115,18 @@ class Snake(GameObject):
             (head_y + dir_y * GRID_SIZE) % SCREEN_HEIGHT,
         )
         self.positions.insert(0, new_head)
-        # Убираем последний элемент (без проверки длины)
         self.last = self.positions.pop()
 
     def draw(self):
-        """Отрисовать голову и стереть хвост (без лишнего цикла)."""
+        """Отрисовать голову и стереть хвост."""
         self.draw_cell(self.positions[0])
         if self.last:
             self.draw_cell(self.last, BOARD_BACKGROUND_COLOR, None)
 
     def reset(self):
-        """Вернуть змейку в начальное состояние (исправлено: случайное направление)."""
+        """Вернуть змейку в начальное состояние."""
         self.length = 1
         self.positions = [self.position]
-        # При перезапуске (после смерти) направление случайное
         self.direction = choice([UP, DOWN, LEFT, RIGHT])
         self.last = None
 
@@ -147,7 +147,7 @@ def main():
     """Запустить игру."""
     pg.init()
     snake = Snake()
-    apple = Apple(occupied=snake.positions)  # Передаем занятые позиции (исправлено)
+    apple = Apple(occupied=snake.positions)
     screen.fill(BOARD_BACKGROUND_COLOR)
 
     # При старте игры змейка должна двигаться вправо
@@ -161,7 +161,6 @@ def main():
         head = snake.get_head_position()
 
         if head == apple.position:
-            # Если яблоко съедено, возвращаем хвост обратно (удлиняем змейку)
             if snake.last:
                 snake.positions.append(snake.last)
                 snake.last = None
